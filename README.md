@@ -4,14 +4,15 @@ Release Version 1.0.0
 
 A set of helper functions for creating HTML elements with JavaScript.
 
-## Installation
+## Install
 
 ``` console
 npm install https://github.com/JamesRobertHugginsNgo/html-factory.git#1.0.0
 ```
 
-## Usage
+## Use
 
+The build files are located in the dist folder, select the desired platform + version and move this to the desired folder for use. Use the debug version for development, and the minfied version for production. For ES6 modules, any dependencies must be located on the same folder.
 
 ``` JavaScript
 // ES6 Module
