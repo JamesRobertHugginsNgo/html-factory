@@ -92,10 +92,6 @@ var HtmlFactory = function () {
   }
 
   function fromConfig(config, callback) {
-    if (!(config != null)) {
-      throw 'Invalid Argument. Argument "config" must not be undefined nor null.';
-    }
-
     if (Array.isArray(config)) {
       return toFragment(config.map(function (value) {
         return fromConfig(value);

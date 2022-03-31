@@ -77,10 +77,6 @@ function toElement(name = 'div', attributes, children, callback) {
 }
 
 function fromConfig(config, callback) {
-	if (!(config != null)) {
-		throw 'Invalid Argument. Argument "config" must not be undefined nor null.';
-	}
-
 	if (Array.isArray(config)) {
 		return toFragment(config.map((value) => fromConfig(value)), callback);
 	}
