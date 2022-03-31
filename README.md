@@ -16,7 +16,7 @@ The build files are located in the dist folder, select the desired platform + ve
 
 ``` JavaScript
 // ES6 Module
-import { fragment, elementNs, element } from './html-factory.min.js'; // TODO - Update path
+import { toFragment, toElementNs, toElement } from './html-factory.min.js'; // TODO - Update path
 
 // Or
 
