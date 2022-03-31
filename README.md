@@ -1,13 +1,13 @@
 # html-factory
 
-Release Version 1.1.0
+Release Version 1.1.1
 
 A set of helper functions for creating HTML elements with JavaScript.
 
 ## Install
 
 ``` console
-npm install https://github.com/JamesRobertHugginsNgo/html-factory.git#1.1.0
+npm install https://github.com/JamesRobertHugginsNgo/html-factory.git#1.1.1
 ```
 
 ## Use
