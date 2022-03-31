@@ -1,5 +1,7 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 var HtmlFactory = function () {
   function toFragment(children, callback) {
     var element = document.createDocumentFragment();
@@ -65,10 +67,38 @@ var HtmlFactory = function () {
     return toElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, callback);
   }
 
+  function fromConfig(config, callback) {
+    if (Array.isArray(config)) {
+      return toFragment(config.map(function (value) {
+        return fromConfig(value);
+      }), callback);
+    }
+
+    if (_typeof(config) === 'object' && config) {
+      var namespace = config.namespace,
+          name = config.name,
+          attributes = config.attributes,
+          children = config.children;
+
+      if (namespace) {
+        return toElementNs(namespace, name, attributes, fromConfig(children), callback);
+      }
+
+      return toElement(name, attributes, fromConfig(children), callback);
+    }
+
+    if (callback) {
+      callback(config);
+    }
+
+    return config;
+  }
+
   return {
     toFragment: toFragment,
     toElementNs: toElementNs,
-    toElement: toElement
+    toElement: toElement,
+    fromConfig: fromConfig
   };
 }();
 /* exported HtmlFactory */

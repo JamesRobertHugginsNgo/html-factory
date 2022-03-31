@@ -43,11 +43,11 @@ var HtmlFactory = function () {
 
   function toElementNs(namespace, name, attributes, children, callback) {
     if (!(typeof namespace === 'string')) {
-      throw 'Invalid Argument. Argument "namespace" must be an Element.';
+      throw 'Invalid Argument. Argument "namespace" must be a string.';
     }
 
     if (!(typeof name === 'string')) {
-      throw 'Invalid Argument. Argument "element" must be an Element.';
+      throw 'Invalid Argument. Argument "name" must be a string.';
     }
 
     if (!(attributes == null || _typeof(attributes) === 'object')) {
@@ -91,10 +91,42 @@ var HtmlFactory = function () {
     return toElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, callback);
   }
 
+  function fromConfig(config, callback) {
+    if (!(config != null)) {
+      throw 'Invalid Argument. Argument "config" must not be undefined nor null.';
+    }
+
+    if (Array.isArray(config)) {
+      return toFragment(config.map(function (value) {
+        return fromConfig(value);
+      }), callback);
+    }
+
+    if (_typeof(config) === 'object' && config) {
+      var namespace = config.namespace,
+          name = config.name,
+          attributes = config.attributes,
+          children = config.children;
+
+      if (namespace) {
+        return toElementNs(namespace, name, attributes, fromConfig(children), callback);
+      }
+
+      return toElement(name, attributes, fromConfig(children), callback);
+    }
+
+    if (callback) {
+      callback(config);
+    }
+
+    return config;
+  }
+
   return {
     toFragment: toFragment,
     toElementNs: toElementNs,
-    toElement: toElement
+    toElement: toElement,
+    fromConfig: fromConfig
   };
 }();
 /* exported HtmlFactory */

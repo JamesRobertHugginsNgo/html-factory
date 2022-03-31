@@ -37,10 +37,10 @@ function toFragment(children, callback) {
 
 function toElementNs(namespace, name, attributes, children, callback) {
 	if (!(typeof namespace === 'string')) {
-		throw 'Invalid Argument. Argument "namespace" must be an Element.';
+		throw 'Invalid Argument. Argument "namespace" must be a string.';
 	}
 	if (!(typeof name === 'string')) {
-		throw 'Invalid Argument. Argument "element" must be an Element.';
+		throw 'Invalid Argument. Argument "name" must be a string.';
 	}
 	if (!(attributes == null || typeof attributes === 'object')) {
 		throw 'Invalid Argument. Argument "attributes" must be undefined, null or an object.';
@@ -77,10 +77,37 @@ function toElement(name = 'div', attributes, children, callback) {
 	return toElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, callback);
 }
 
+function fromConfig(config, callback) {
+	if (!(config != null)) {
+		throw 'Invalid Argument. Argument "config" must not be undefined nor null.';
+	}
+
+	if (Array.isArray(config)) {
+		return toFragment(config.map((value) => fromConfig(value)), callback);
+	}
+
+	if (typeof config === 'object' && config) {
+		const { namespace, name, attributes, children } = config;
+
+		if (namespace) {
+			return toElementNs(namespace, name, attributes, fromConfig(children), callback);
+		}
+
+		return toElement(name, attributes, fromConfig(children), callback);
+	}
+
+	if (callback) {
+		callback(config);
+	}
+
+	return config;
+}
+
 return {
 	toFragment,
 	toElementNs,
-	toElement
+	toElement,
+	fromConfig
 };
 })();
 
