@@ -77,25 +77,26 @@ function toElement(name = 'div', attributes, children, callback) {
 }
 
 function fromConfig(config, callback) {
+	let element = config;
+
 	if (Array.isArray(config)) {
-		return toFragment(config.map((value) => fromConfig(value)), callback);
-	}
-
-	if (typeof config === 'object' && config) {
-		const { namespace, name, attributes, children } = config;
-
-		if (namespace) {
-			return toElementNs(namespace, name, attributes, fromConfig(children), callback);
+		element = toFragment(config.map((value) => fromConfig(value)));
+	} else if (typeof config === 'object' && config) {
+		const { namespace, name, attributes, children, callback } = config;
+		if (namespace && name) {
+			element = toElementNs(namespace, name, attributes, fromConfig(children), callback);
+		} else if (name) {
+			element = toElement(name, attributes, fromConfig(children), callback);
+		} else if (children) {
+			element = fromConfig(children, callback);
 		}
-
-		return toElement(name, attributes, fromConfig(children), callback);
 	}
 
 	if (callback) {
-		callback(config);
+		callback(element);
 	}
 
-	return config;
+	return element;
 }
 
 export {

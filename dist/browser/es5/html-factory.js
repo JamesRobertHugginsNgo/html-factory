@@ -68,30 +68,33 @@ var HtmlFactory = function () {
   }
 
   function fromConfig(config, callback) {
-    if (Array.isArray(config)) {
-      return toFragment(config.map(function (value) {
-        return fromConfig(value);
-      }), callback);
-    }
+    var element = config;
 
-    if (_typeof(config) === 'object' && config) {
+    if (Array.isArray(config)) {
+      element = toFragment(config.map(function (value) {
+        return fromConfig(value);
+      }));
+    } else if (_typeof(config) === 'object' && config) {
       var namespace = config.namespace,
           name = config.name,
           attributes = config.attributes,
-          children = config.children;
+          children = config.children,
+          _callback = config.callback;
 
-      if (namespace) {
-        return toElementNs(namespace, name, attributes, fromConfig(children), callback);
+      if (namespace && name) {
+        element = toElementNs(namespace, name, attributes, fromConfig(children), _callback);
+      } else if (name) {
+        element = toElement(name, attributes, fromConfig(children), _callback);
+      } else if (children) {
+        element = fromConfig(children, _callback);
       }
-
-      return toElement(name, attributes, fromConfig(children), callback);
     }
 
     if (callback) {
-      callback(config);
+      callback(element);
     }
 
-    return config;
+    return element;
   }
 
   return {
