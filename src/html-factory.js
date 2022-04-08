@@ -1,65 +1,93 @@
 /* @if TARGET="BROWSER_ES6" || TARGET="BROWSER_ES5" **
 const HtmlFactory = (() => {
 /* @endif */
-function toFragment(children, callback) {
-	/* @if DEBUG */
-	if (!(children != null)) {
-		throw 'Invalid Argument. Argument "children" must not be undefined nor null.';
+
+/*
+$childType: undefined | null | boolean | number | string | Node | $elementOptionsType;
+
+$childrenType: $childType | [$childType];
+
+makeFragment: function (
+	options: object {
+		children: $childrenType,
+		callback: undefined | null | function (fragment: DocumentFragment) => void
 	}
-	if (!(callback == null || typeof callback === 'function')) {
+) => DocumentFragment;
+*/
+function makeFragment({ children, callback }) {
+	/* @if DEBUG */
+	if (!(callback === undefined || callback === null || typeof callback === 'function')) {
 		throw 'Invalid Argument. Argument "callback" must be undefined, null or a function.';
 	}
 
 	/* @endif */
-	const element = document.createDocumentFragment();
+	const fragment = document.createDocumentFragment();
 
 	if (!Array.isArray(children)) {
 		children = [children];
 	}
 
 	for (let index = 0, length = children.length; index < length; index++) {
-		const child = children[index];
+		let child = children[index];
+
 		if (child == null) {
 			continue;
 		}
 
-		if (!(child instanceof Node)) {
-			const textNode = document.createTextNode(children[index]);
-			element.appendChild(textNode);
-			continue;
+		if (typeof child === 'object' && child.name) {
+			child = makeElement(child);
 		}
 
-		element.appendChild(children[index]);
+		if (!(child instanceof Node)) {
+			if (typeof child !== 'string') {
+				child = String(child);
+			}
+
+			child = document.createTextNode(child);
+		}
+
+		fragment.appendChild(child);
 	}
 
-	if (callback) {
-		callback(element);
+	if (callback != null) {
+		callback(fragment);
 	}
 
-	return element;
+	return fragment;
 }
 
-function toElementNs(namespace, name, attributes, children, callback) {
+/*
+$attributesType: object {
+	[property: string]: undefined | null | boolean | number | string
+};
+
+$elementOptionsType: object {
+	namespace: undefined | null | string,
+	name: string,
+	attributes: $attributesType,
+	children: $childrenType,
+	callback: undefined | null | function (element: Element) => void
+};
+
+makeElement: function (
+	options: $elementOptionsType
+) => Element;
+*/
+function makeElement({ namespace, name, attributes, children, callback }) {
 	/* @if DEBUG */
-	if (!(typeof namespace === 'string')) {
-		throw 'Invalid Argument. Argument "namespace" must be a string.';
-	}
-	if (!(typeof name === 'string')) {
-		throw 'Invalid Argument. Argument "name" must be a string.';
-	}
-	if (!(attributes == null || typeof attributes === 'object')) {
-		throw 'Invalid Argument. Argument "attributes" must be undefined, null or an object.';
-	}
-	if (!(callback == null || typeof callback === 'function')) {
+	if (!(callback === undefined || callback === null || typeof callback === 'function')) {
 		throw 'Invalid Argument. Argument "callback" must be undefined, null or a function.';
 	}
 
 	/* @endif */
-	const element = document.createElementNS(namespace, name);
+	const element = namespace == null
+		? document.createElement(name)
+		: document.createElementNS(namespace, name);
 
-	if (attributes) {
+	if (attributes != null) {
 		for (const key in attributes) {
 			const value = attributes[key];
+
 			if (value == null) {
 				continue;
 			}
@@ -68,58 +96,61 @@ function toElementNs(namespace, name, attributes, children, callback) {
 		}
 	}
 
-	if (children) {
-		element.appendChild(toFragment(children));
+	if (children != null) {
+		element.appendChild(makeFragment({ children }));
 	}
 
-	if (callback) {
+	if (callback != null) {
 		callback(element);
 	}
 
 	return element;
 }
 
-function toElement(name = 'div', attributes, children, callback) {
-	return toElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, callback);
-}
+/*
+$selectorOptionsType: object {
+	[selector: string]: undefined | null | $attributesType
+};
 
-function fromConfig(config, callback) {
-	let element = config;
+makeStyleString: function (
+	options: $attributesType | $selectorOptionsType | object {
+		[media: string]: undefined | null | $selectorOptionsType
+	}
+) => string;
+*/
+function makeStyleString(options) {
+	const styleArray = [];
 
-	if (Array.isArray(config)) {
-		element = toFragment(config.map((value) => fromConfig(value)));
-	} else if (typeof config === 'object' && config) {
-		const { namespace, name, attributes, children, callback } = config;
-		if (namespace && name) {
-			element = toElementNs(namespace, name, attributes, fromConfig(children), callback);
-		} else if (name) {
-			element = toElement(name, attributes, fromConfig(children), callback);
-		} else if (children) {
-			element = fromConfig(children, callback);
+	for (const key in options) {
+		const value = options[key];
+
+		if (value == null) {
+			continue;
 		}
+
+		if (typeof value === 'object') {
+			styleArray.push(`${key} { ${makeStyleString(value)} }`);
+			continue;
+		}
+
+		styleArray.push(`${key}: ${value};`);
 	}
 
-	if (callback) {
-		callback(element);
-	}
-
-	return element;
+	return styleArray.join(' ');
 }
 
 /* @if TARGET="BROWSER_ES6_MODULE" */
 export {
-	toFragment,
-	toElementNs,
-	toElement,
-	fromConfig
+	makeFragment,
+	makeElement,
+	makeStyleString
 };
 /* @endif */
 /* @if TARGET="BROWSER_ES6" || TARGET="BROWSER_ES5" **
 return {
-	toFragment,
-	toElementNs,
-	toElement,
-	fromConfig
+	makeFragment,
+	makeElement,
+	makeStyleString
 };
 })();
 

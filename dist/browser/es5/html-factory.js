@@ -3,8 +3,22 @@
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var HtmlFactory = function () {
-  function toFragment(children, callback) {
-    var element = document.createDocumentFragment();
+  /*
+  $childType: undefined | null | boolean | number | string | Node | $elementOptionsType;
+  
+  $childrenType: $childType | [$childType];
+  
+  makeFragment: function (
+  	options: object {
+  		children: $childrenType,
+  		callback: undefined | null | function (fragment: DocumentFragment) => void
+  	}
+  ) => DocumentFragment;
+  */
+  function makeFragment(_ref) {
+    var children = _ref.children,
+        callback = _ref.callback;
+    var fragment = document.createDocumentFragment();
 
     if (!Array.isArray(children)) {
       children = [children];
@@ -17,26 +31,55 @@ var HtmlFactory = function () {
         continue;
       }
 
-      if (!(child instanceof Node)) {
-        var textNode = document.createTextNode(children[index]);
-        element.appendChild(textNode);
-        continue;
+      if (_typeof(child) === 'object' && child.name) {
+        child = makeElement(child);
       }
 
-      element.appendChild(children[index]);
+      if (!(child instanceof Node)) {
+        if (typeof child !== 'string') {
+          child = String(child);
+        }
+
+        child = document.createTextNode(child);
+      }
+
+      fragment.appendChild(child);
     }
 
-    if (callback) {
-      callback(element);
+    if (callback != null) {
+      callback(fragment);
     }
 
-    return element;
+    return fragment;
   }
+  /*
+  $attributesType: object {
+  	[property: string]: undefined | null | boolean | number | string
+  };
+  
+  $elementOptionsType: object {
+  	namespace: undefined | null | string,
+  	name: string,
+  	attributes: $attributesType,
+  	children: $childrenType,
+  	callback: undefined | null | function (element: Element) => void
+  };
+  
+  makeElement: function (
+  	options: $elementOptionsType
+  ) => Element;
+  */
 
-  function toElementNs(namespace, name, attributes, children, callback) {
-    var element = document.createElementNS(namespace, name);
 
-    if (attributes) {
+  function makeElement(_ref2) {
+    var namespace = _ref2.namespace,
+        name = _ref2.name,
+        attributes = _ref2.attributes,
+        children = _ref2.children,
+        callback = _ref2.callback;
+    var element = namespace == null ? document.createElement(name) : document.createElementNS(namespace, name);
+
+    if (attributes != null) {
       for (var key in attributes) {
         var value = attributes[key];
 
@@ -48,60 +91,56 @@ var HtmlFactory = function () {
       }
     }
 
-    if (children) {
-      element.appendChild(toFragment(children));
-    }
-
-    if (callback) {
-      callback(element);
-    }
-
-    return element;
-  }
-
-  function toElement() {
-    var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'div';
-    var attributes = arguments.length > 1 ? arguments[1] : undefined;
-    var children = arguments.length > 2 ? arguments[2] : undefined;
-    var callback = arguments.length > 3 ? arguments[3] : undefined;
-    return toElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, callback);
-  }
-
-  function fromConfig(config, callback) {
-    var element = config;
-
-    if (Array.isArray(config)) {
-      element = toFragment(config.map(function (value) {
-        return fromConfig(value);
+    if (children != null) {
+      element.appendChild(makeFragment({
+        children: children
       }));
-    } else if (_typeof(config) === 'object' && config) {
-      var namespace = config.namespace,
-          name = config.name,
-          attributes = config.attributes,
-          children = config.children,
-          _callback = config.callback;
-
-      if (namespace && name) {
-        element = toElementNs(namespace, name, attributes, fromConfig(children), _callback);
-      } else if (name) {
-        element = toElement(name, attributes, fromConfig(children), _callback);
-      } else if (children) {
-        element = fromConfig(children, _callback);
-      }
     }
 
-    if (callback) {
+    if (callback != null) {
       callback(element);
     }
 
     return element;
+  }
+  /*
+  $selectorOptionsType: object {
+  	[selector: string]: undefined | null | $attributesType
+  };
+  
+  makeStyleString: function (
+  	options: $attributesType | $selectorOptionsType | object {
+  		[media: string]: undefined | null | $selectorOptionsType
+  	}
+  ) => string;
+  */
+
+
+  function makeStyleString(options) {
+    var styleArray = [];
+
+    for (var key in options) {
+      var value = options[key];
+
+      if (value == null) {
+        continue;
+      }
+
+      if (_typeof(value) === 'object') {
+        styleArray.push("".concat(key, " { ").concat(makeStyleString(value), " }"));
+        continue;
+      }
+
+      styleArray.push("".concat(key, ": ").concat(value, ";"));
+    }
+
+    return styleArray.join(' ');
   }
 
   return {
-    toFragment: toFragment,
-    toElementNs: toElementNs,
-    toElement: toElement,
-    fromConfig: fromConfig
+    makeFragment: makeFragment,
+    makeElement: makeElement,
+    makeStyleString: makeStyleString
   };
 }();
 /* exported HtmlFactory */
