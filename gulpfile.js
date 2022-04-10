@@ -32,6 +32,12 @@ function cleanup() {
 
 // -- BROWSER ES6 MODULE -------------------------------------------------------
 
+// ADD DEPENDENCY BROWSER ES6 MODULE DEBUG
+// function addDependency_browser_es6Module_debug() {
+// 	return gulp.src('./node_modules/library/dist/browser/es6-module/*.debug.js')
+// 		.pipe(gulp.dest('./dist/browser/es6-module/'));
+// }
+
 // BUILD BROWSER ES6 MODULE DEBUG
 function build_browser_es6Module_debug() {
 	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es6Module_debug) })
@@ -39,6 +45,16 @@ function build_browser_es6Module_debug() {
 		.pipe(gulpRename((path) => path.basename += '.debug'))
 		.pipe(gulp.dest('./dist/browser/es6-module/'));
 }
+
+// ADD DEPENDENCY BROWSER ES6 MODULE
+// function addDependency_browser_es6Module() {
+// 	return gulp.src([
+// 		'./node_modules/library/dist/browser/es6-module/*.js',
+// 		'./node_modules/library/dist/browser/es6-module/*.min.js',
+// 		'./node_modules/library/dist/browser/es6-module/*.min.js.map'
+// 	])
+// 		.pipe(gulp.dest('./dist/browser/es6-module/'));
+// }
 
 // BUILD BROWSER ES6 MODULE
 function build_browser_es6Module() {
@@ -54,6 +70,12 @@ function build_browser_es6Module() {
 
 // -- BROWSER ES6 --------------------------------------------------------------
 
+// ADD DEPENDENCY BROWSER ES6 DEBUG
+// function addDependency_browser_es6_debug() {
+// 	return gulp.src('./node_modules/library/dist/browser/es6/*.debug.js')
+// 		.pipe(gulp.dest('./dist/browser/es6/'));
+// }
+
 // BUILD BROWSER ES6 DEBUG
 function build_browser_es6_debug() {
 	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es6_debug) })
@@ -61,6 +83,16 @@ function build_browser_es6_debug() {
 		.pipe(gulpRename((path) => path.basename += '.debug'))
 		.pipe(gulp.dest('./dist/browser/es6/'));
 }
+
+// ADD DEPENDENCY BROWSER ES6
+// function addDependency_browser_es6() {
+// 	return gulp.src([
+// 		'./node_modules/library/dist/browser/es6/*.js',
+// 		'./node_modules/library/dist/browser/es6/*.min.js',
+// 		'./node_modules/library/dist/browser/es6/*.min.js.map'
+// 	])
+// 		.pipe(gulp.dest('./dist/browser/es6/'));
+// }
 
 // BUILD BROWSER ES6
 function build_browser_es6() {
@@ -76,6 +108,12 @@ function build_browser_es6() {
 
 // -- BROWSER ES5 --------------------------------------------------------------
 
+// ADD DEPENDENCY BROWSER ES5 DEBUG
+// function addDependency_browser_es5_debug() {
+// 	return gulp.src('./node_modules/library/dist/browser/es5/*.debug.js')
+// 		.pipe(gulp.dest('./dist/browser/es5/'));
+// }
+
 // BUILD BROWSER ES5 DEBUG
 function build_browser_es5_debug() {
 	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es5_debug) })
@@ -84,6 +122,16 @@ function build_browser_es5_debug() {
 		.pipe(gulpRename((path) => path.basename += '.debug'))
 		.pipe(gulp.dest('./dist/browser/es5/'));
 }
+
+// ADD DEPENDENCY BROWSER ES5
+// function addDependency_browser_es5() {
+// 	return gulp.src([
+// 		'./node_modules/library/dist/browser/es5/*.js',
+// 		'./node_modules/library/dist/browser/es5/*.min.js',
+// 		'./node_modules/library/dist/browser/es5/*.min.js.map'
+// 	])
+// 		.pipe(gulp.dest('./dist/browser/es5/'));
+// }
 
 // BUILD BROWSER ES5
 function build_browser_es5() {
@@ -99,6 +147,15 @@ function build_browser_es5() {
 }
 
 // -----------------------------------------------------------------------------
+
+// const addDependency = gulp.parallel(
+// 	addDependency_browser_es6Module_debug,
+// 	addDependency_browser_es6Module,
+// 	addDependency_browser_es6_debug,
+// 	addDependency_browser_es6,
+// 	addDependency_browser_es5_debug,
+// 	addDependency_browser_es5
+// );
 
 const build = gulp.parallel(
 	// build_node_debug,
