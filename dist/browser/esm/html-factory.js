@@ -124,8 +124,8 @@ function makeFragment(children, functionCalls = []) {
 	};
 }
 
-function makeElement(name, attributes, children, functionCalls = []) {
-	const element = document.createElement(name);
+function makeElementNs(namespaceURI, name, attributes, children, functionCalls = []) {
+	const element = document.createElementNS(namespaceURI, name);
 	if (attributes) {
 		for (const key in attributes) {
 			const value = attributes[key];
@@ -144,6 +144,10 @@ function makeElement(name, attributes, children, functionCalls = []) {
 		element,
 		functionCalls
 	};
+}
+
+function makeElement(name, attributes, children, functionCalls = []) {
+	return makeElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, functionCalls);
 }
 
 function makeFunctionCall(functionCall) {
@@ -170,6 +174,7 @@ export {
 	renderStyleString,
 	renderFunctionCall,
 	makeFragment,
+	makeElementNs,
 	makeElement,
 	makeFunctionCall
 };

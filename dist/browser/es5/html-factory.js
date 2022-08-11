@@ -191,9 +191,9 @@ var HtmlFactory = function () {
     };
   }
 
-  function makeElement(name, attributes, children) {
-    var functionCalls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-    var element = document.createElement(name);
+  function makeElementNs(namespaceURI, name, attributes, children) {
+    var functionCalls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
+    var element = document.createElementNS(namespaceURI, name);
 
     if (attributes) {
       for (var key in attributes) {
@@ -215,6 +215,11 @@ var HtmlFactory = function () {
       element: element,
       functionCalls: functionCalls
     };
+  }
+
+  function makeElement(name, attributes, children) {
+    var functionCalls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+    return makeElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, functionCalls);
   }
 
   function makeFunctionCall(functionCall) {
@@ -244,6 +249,7 @@ var HtmlFactory = function () {
     renderStyleString: renderStyleString,
     renderFunctionCall: renderFunctionCall,
     makeFragment: makeFragment,
+    makeElementNs: makeElementNs,
     makeElement: makeElement,
     makeFunctionCall: makeFunctionCall
   };
