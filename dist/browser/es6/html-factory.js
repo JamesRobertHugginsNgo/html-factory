@@ -1,134 +1,178 @@
 const HtmlFactory = (() => {
-
-/*
-$childType: undefined | null | boolean | number | string | Node | $elementOptionsType;
-
-$childrenType: $childType | [$childType];
-
-makeFragment: function (
-	options: object {
-		children: $childrenType,
-		callback: undefined | null | function (fragment: DocumentFragment) => void
-	}
-) => DocumentFragment;
-*/
-function makeFragment({ children, callback }) {
-	const fragment = document.createDocumentFragment();
-
-	if (!Array.isArray(children)) {
-		children = [children];
+function renderFragment(children, functionCalls = []) {
+	if (children == null) {
+		return null;
 	}
 
-	for (let index = 0, length = children.length; index < length; index++) {
-		let child = children[index];
-
-		if (child == null) {
-			continue;
-		}
-
-		if (typeof child === 'object' && child.name) {
-			child = makeElement(child);
-		}
-
-		if (!(child instanceof Node)) {
-			if (typeof child !== 'string') {
-				child = String(child);
+	if (Array.isArray(children)) {
+		const functionCallSet = [];
+		const element = [];
+		for (const child of children) {
+			const fragment = renderFragment(child, functionCallSet);
+			if (fragment) {
+				element.push(fragment.element);
 			}
-
-			child = document.createTextNode(child);
 		}
-
-		fragment.appendChild(child);
+		functionCalls.splice(0, 0, ...functionCallSet);
+		return {
+			element: element.join(''),
+			functionCalls
+		};
 	}
 
-	if (callback != null) {
-		callback(fragment);
+	if (typeof children === 'object' && children.element) {
+		functionCalls.push(...children.functionCalls);
+		return {
+			element: children.element,
+			functionCalls
+		};
 	}
 
-	return fragment;
+	return {
+		element: children,
+		functionCalls
+	};
 }
 
-/*
-$attributesType: object {
-	[property: string]: undefined | null | boolean | number | string
-};
-
-$elementOptionsType: object {
-	namespace: undefined | null | string,
-	name: string,
-	attributes: $attributesType,
-	children: $childrenType,
-	callback: undefined | null | function (element: Element) => void
-};
-
-makeElement: function (
-	options: $elementOptionsType
-) => Element;
-*/
-function makeElement({ namespace, name, attributes, children, callback }) {
-	const element = namespace == null
-		? document.createElement(name)
-		: document.createElementNS(namespace, name);
-
-	if (attributes != null) {
+function renderElement(name, attributes, children, functionCalls = []) {
+	const opening = [name];
+	if (attributes) {
 		for (const key in attributes) {
 			const value = attributes[key];
-
-			if (value == null) {
-				continue;
+			if (value != null) {
+				opening.push(`${key}="${value}"`);
 			}
-
-			element.setAttribute(key, value);
 		}
 	}
 
+	const element = [`<${opening.join(' ')}>`];
 	if (children != null) {
-		element.appendChild(makeFragment({ children }));
+		const fragment = renderFragment(children, functionCalls);
+		if (fragment) {
+			element.push(fragment.element);
+		}
+		element.push(`</${name}>`);
 	}
 
-	if (callback != null) {
-		callback(element);
-	}
-
-	return element;
+	return {
+		element: element.join(''),
+		functionCalls
+	};
 }
 
-/*
-$selectorOptionsType: object {
-	[selector: string]: undefined | null | $attributesType
-};
-
-makeStyleString: function (
-	options: $attributesType | $selectorOptionsType | object {
-		[media: string]: undefined | null | $selectorOptionsType
-	}
-) => string;
-*/
-function makeStyleString(options) {
-	const styleArray = [];
-
-	for (const key in options) {
-		const value = options[key];
-
-		if (value == null) {
-			continue;
-		}
-
+function renderStyleString(styles) {
+	const styleStrings = [];
+	for (const key in styles) {
+		const value = styles[key];
 		if (typeof value === 'object') {
-			styleArray.push(`${key} { ${makeStyleString(value)} }`);
-			continue;
+			styleStrings.push(`${key} { ${renderStyleString(value)} }`);
+		} else {
+			styleStrings.push(`${key}: ${value};`);
 		}
+	}
+	return styleStrings.join(' ');
+}
 
-		styleArray.push(`${key}: ${value};`);
+function renderFunctionCall(functionCall) {
+	if (Array.isArray(functionCall)) {
+		const [name, ...args] = functionCall;
+		return renderFunctionCall({
+			name,
+			arguments: args
+		});
 	}
 
-	return styleArray.join(' ');
+	const {
+		name,
+		arguments: args
+	} = functionCall;
+	const finalArgs = (Array.isArray(args) ? args : [args]).map((arg) => JSON.stringify(arg));
+	return `${name}(${finalArgs.join(', ')});`;
+}
+
+function makeFragment(children, functionCalls = []) {
+	if (children == null) {
+		return null;
+	}
+
+	if (Array.isArray(children)) {
+		const functionCallSet = [];
+		const element = document.createDocumentFragment();
+		for (const child of children) {
+			const fragment = makeFragment(child, functionCallSet);
+			if (fragment) {
+				element.append(fragment.element);
+			}
+		}
+		functionCalls.splice(0, 0, ...functionCallSet);
+		return {
+			element,
+			functionCalls
+		};
+	}
+
+	if (typeof children === 'object' && children.element) {
+		functionCalls.push(...children.functionCalls);
+		return {
+			element: children.element,
+			functionCalls
+		};
+	}
+
+	return {
+		element: children,
+		functionCalls
+	};
+}
+
+function makeElement(name, attributes, children, functionCalls = []) {
+	const element = document.createElement(name);
+	if (attributes) {
+		for (const key in attributes) {
+			const value = attributes[key];
+			if (value != null) {
+				element.setAttribute(key, value);
+			}
+		}
+	}
+
+	const fragment = makeFragment(children, functionCalls);
+	if (fragment) {
+		element.append(fragment.element);
+	}
+
+	return {
+		element,
+		functionCalls
+	};
+}
+
+function makeFunctionCall(functionCall) {
+	if (Array.isArray(functionCall)) {
+		const [name, ...args] = functionCall;
+		return makeFunctionCall({
+			name,
+			arguments: args
+		});
+	}
+
+	const {
+		name,
+		arguments: args
+	} = functionCall;
+	const func = name.split('.').reduce((acc, cur) => acc[cur], window);
+	const finalArgs = (Array.isArray(args) ? args : [args]);
+	return func(...finalArgs);
 }
 
 return {
+	renderFragment,
+	renderElement,
+	renderStyleString,
+	renderFunctionCall,
 	makeFragment,
 	makeElement,
-	makeStyleString
+	makeFunctionCall
 };
 })();
 

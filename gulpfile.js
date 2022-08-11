@@ -13,90 +13,52 @@ function cleanup() {
 	return del('./dist/');
 }
 
-// -- NODE ---------------------------------------------------------------------
+// -- BUILD NODE ---------------------------------------------------------------
 
-// BUILD NODE DEBUG
-// function build_node_debug() {
-// 	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_node_debug) })
-// 		.pipe(gulpPreprocess({ context: { TARGET: 'NODE', DEBUG: true } }))
-// 		.pipe(gulpRename((path) => path.basename += '.debug'))
-// 		.pipe(gulp.dest('./dist/node/'));
-// }
-
-// BUILD NODE
-// function build_node() {
-// 	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_node) })
-// 		.pipe(gulpPreprocess({ context: { TARGET: 'NODE', DEBUG: false } }))
-// 		.pipe(gulp.dest('./dist/node/'));
-// }
-
-// -- BROWSER ES6 MODULE -------------------------------------------------------
-
-// ADD DEPENDENCY BROWSER ES6 MODULE DEBUG
-// function addDependency_browser_es6Module_debug() {
-// 	return gulp.src('./node_modules/library/dist/browser/es6-module/*.debug.js')
-// 		.pipe(gulp.dest('./dist/browser/es6-module/'));
-// }
-
-// BUILD BROWSER ES6 MODULE DEBUG
-function build_browser_es6Module_debug() {
-	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es6Module_debug) })
-		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ES6_MODULE', DEBUG: true } }))
+function buildNode_withDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildNode_withDebug) })
+		.pipe(gulpPreprocess({ context: { TARGET: 'NODE', DEBUG: true } }))
 		.pipe(gulpRename((path) => path.basename += '.debug'))
-		.pipe(gulp.dest('./dist/browser/es6-module/'));
+		.pipe(gulp.dest('./dist/node/'));
 }
 
-// ADD DEPENDENCY BROWSER ES6 MODULE
-// function addDependency_browser_es6Module() {
-// 	return gulp.src([
-// 		'./node_modules/library/dist/browser/es6-module/*.js',
-// 		'./node_modules/library/dist/browser/es6-module/*.min.js',
-// 		'./node_modules/library/dist/browser/es6-module/*.min.js.map'
-// 	])
-// 		.pipe(gulp.dest('./dist/browser/es6-module/'));
-// }
+function buildNode_withoutDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildNode_withoutDebug) })
+		.pipe(gulpPreprocess({ context: { TARGET: 'NODE', DEBUG: false } }))
+		.pipe(gulp.dest('./dist/node/'));
+}
 
-// BUILD BROWSER ES6 MODULE
-function build_browser_es6Module() {
-	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es6Module) })
-		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ES6_MODULE', DEBUG: false } }))
-		.pipe(gulp.dest('./dist/browser/es6-module/'))
+// -- BUILD BROWSER ESM --------------------------------------------------------
+
+function buildBrowserEsm_withDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildBrowserEsm_withDebug) })
+		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ESM', DEBUG: true } }))
+		.pipe(gulpRename((path) => path.basename += '.debug'))
+		.pipe(gulp.dest('./dist/browser/esm/'));
+}
+
+function buildBrowserEsm_withoutDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildBrowserEsm_withoutDebug) })
+		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ESM', DEBUG: false } }))
+		.pipe(gulp.dest('./dist/browser/esm/'))
 		.pipe(gulpRename((path) => path.basename += '.min'))
 		.pipe(gulpSourcemaps.init())
 		.pipe(gulpTerser())
 		.pipe(gulpSourcemaps.write('.'))
-		.pipe(gulp.dest('./dist/browser/es6-module/'));
+		.pipe(gulp.dest('./dist/browser/esm/'));
 }
 
-// -- BROWSER ES6 --------------------------------------------------------------
+// -- BUILD BROWSER ES6 --------------------------------------------------------
 
-// ADD DEPENDENCY BROWSER ES6 DEBUG
-// function addDependency_browser_es6_debug() {
-// 	return gulp.src('./node_modules/library/dist/browser/es6/*.debug.js')
-// 		.pipe(gulp.dest('./dist/browser/es6/'));
-// }
-
-// BUILD BROWSER ES6 DEBUG
-function build_browser_es6_debug() {
-	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es6_debug) })
+function buildBrowserEs6_withDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildBrowserEs6_withDebug) })
 		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ES6', DEBUG: true } }))
 		.pipe(gulpRename((path) => path.basename += '.debug'))
 		.pipe(gulp.dest('./dist/browser/es6/'));
 }
 
-// ADD DEPENDENCY BROWSER ES6
-// function addDependency_browser_es6() {
-// 	return gulp.src([
-// 		'./node_modules/library/dist/browser/es6/*.js',
-// 		'./node_modules/library/dist/browser/es6/*.min.js',
-// 		'./node_modules/library/dist/browser/es6/*.min.js.map'
-// 	])
-// 		.pipe(gulp.dest('./dist/browser/es6/'));
-// }
-
-// BUILD BROWSER ES6
-function build_browser_es6() {
-	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es6) })
+function buildBrowserEs6_withoutDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildBrowserEs6_withoutDebug) })
 		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ES6', DEBUG: false } }))
 		.pipe(gulp.dest('./dist/browser/es6/'))
 		.pipe(gulpRename((path) => path.basename += '.min'))
@@ -106,36 +68,18 @@ function build_browser_es6() {
 		.pipe(gulp.dest('./dist/browser/es6/'));
 }
 
-// -- BROWSER ES5 --------------------------------------------------------------
+// -- BUILD BROWSER ES5 --------------------------------------------------------
 
-// ADD DEPENDENCY BROWSER ES5 DEBUG
-// function addDependency_browser_es5_debug() {
-// 	return gulp.src('./node_modules/library/dist/browser/es5/*.debug.js')
-// 		.pipe(gulp.dest('./dist/browser/es5/'));
-// }
-
-// BUILD BROWSER ES5 DEBUG
-function build_browser_es5_debug() {
-	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es5_debug) })
+function buildBrowserEs5_withDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildBrowserEs5_withDebug) })
 		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ES5', DEBUG: true } }))
 		.pipe(gulpBabel())
 		.pipe(gulpRename((path) => path.basename += '.debug'))
 		.pipe(gulp.dest('./dist/browser/es5/'));
 }
 
-// ADD DEPENDENCY BROWSER ES5
-// function addDependency_browser_es5() {
-// 	return gulp.src([
-// 		'./node_modules/library/dist/browser/es5/*.js',
-// 		'./node_modules/library/dist/browser/es5/*.min.js',
-// 		'./node_modules/library/dist/browser/es5/*.min.js.map'
-// 	])
-// 		.pipe(gulp.dest('./dist/browser/es5/'));
-// }
-
-// BUILD BROWSER ES5
-function build_browser_es5() {
-	return gulp.src('./src/**/*.js', { since: gulp.lastRun(build_browser_es5) })
+function buildBrowserEs5_withoutDebug() {
+	return gulp.src('./src/**/*.js', { since: gulp.lastRun(buildBrowserEs5_withoutDebug) })
 		.pipe(gulpPreprocess({ context: { TARGET: 'BROWSER_ES5', DEBUG: false } }))
 		.pipe(gulpBabel())
 		.pipe(gulp.dest('./dist/browser/es5/'))
@@ -146,26 +90,17 @@ function build_browser_es5() {
 		.pipe(gulp.dest('./dist/browser/es5/'));
 }
 
-// -----------------------------------------------------------------------------
-
-// const addDependency = gulp.parallel(
-// 	addDependency_browser_es6Module_debug,
-// 	addDependency_browser_es6Module,
-// 	addDependency_browser_es6_debug,
-// 	addDependency_browser_es6,
-// 	addDependency_browser_es5_debug,
-// 	addDependency_browser_es5
-// );
+// -- EXPORT -------------------------------------------------------------------
 
 const build = gulp.parallel(
-	// build_node_debug,
-	// build_node,
-	build_browser_es6Module_debug,
-	build_browser_es6Module,
-	build_browser_es6_debug,
-	build_browser_es6,
-	build_browser_es5_debug,
-	build_browser_es5
+	buildNode_withDebug,
+	buildNode_withoutDebug,
+	buildBrowserEsm_withDebug,
+	buildBrowserEsm_withoutDebug,
+	buildBrowserEs6_withDebug,
+	buildBrowserEs6_withoutDebug,
+	buildBrowserEs5_withDebug,
+	buildBrowserEs5_withoutDebug
 );
 
 function watch() {

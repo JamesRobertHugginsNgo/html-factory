@@ -1,4 +1,3 @@
-const HtmlFactory = (() => {
 function renderFragment(children, functionCalls = []) {
 	if (children == null) {
 		return null;
@@ -165,7 +164,7 @@ function makeFunctionCall(functionCall) {
 	return func(...finalArgs);
 }
 
-return {
+export {
 	renderFragment,
 	renderElement,
 	renderStyleString,
@@ -174,6 +173,3 @@ return {
 	makeElement,
 	makeFunctionCall
 };
-})();
-
-/* exported HtmlFactory */
