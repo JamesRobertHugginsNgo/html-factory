@@ -23,6 +23,32 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 var HtmlFactory = function () {
+  /*
+  type typeFunctionCall: {
+  	name: string,
+  	arguments: any
+  } | [
+  	string,
+  	...any
+  ]
+  
+  type typeMakeElementResult: {
+  	element: any,
+  	functionCalls: [typeFunctionCall]
+  }
+  
+  type typeRenderElementResult: {
+  	element: string,
+  	functionCalls: [typeFunctionCall]
+  }
+  */
+
+  /*
+  renderFragment: (
+  	children: any,
+  	functionCalls: [typeFunctionCall] = []
+  ) => null | typeRenderElementResult
+  */
   function renderFragment(children) {
     var functionCalls = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
@@ -72,6 +98,15 @@ var HtmlFactory = function () {
       functionCalls: functionCalls
     };
   }
+  /*
+  renderElement: (
+  	name: string,
+  	attributes: null | object,
+  	children: any,
+  	functionCalls: [typeFunctionCall] = []
+  ) => typeRenderElementResult
+  */
+
 
   function renderElement(name, attributes, children) {
     var functionCalls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
@@ -104,6 +139,27 @@ var HtmlFactory = function () {
       functionCalls: functionCalls
     };
   }
+  /*
+  renderElementNs: (
+  	namespaceURI: string,
+  	name: string,
+  	attributes: null | object,
+  	children: any,
+  	functionCalls: [typeFunctionCall] = []
+  ) => typeRenderElementResult
+  */
+
+
+  function renderElementNs(namespaceURI, name, attributes, children) {
+    var functionCalls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
+    return renderElement(name, attributes, children, functionCalls);
+  }
+  /*
+  renderStyleString: (
+  	styles: object
+  ) => string
+  */
+
 
   function renderStyleString(styles) {
     var styleStrings = [];
@@ -120,6 +176,12 @@ var HtmlFactory = function () {
 
     return styleStrings.join(' ');
   }
+  /*
+  renderFunctionCall: (
+  	functionCall: typeFunctionCall
+  ) => string
+  */
+
 
   function renderFunctionCall(functionCall) {
     if (Array.isArray(functionCall)) {
@@ -140,6 +202,13 @@ var HtmlFactory = function () {
     });
     return "".concat(name, "(").concat(finalArgs.join(', '), ");");
   }
+  /*
+  makeFragment: (
+  	children: any,
+  	functionCalls: [typeFunctionCall] = []
+  ) => null | typeMakeElementResult
+  */
+
 
   function makeFragment(children) {
     var functionCalls = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -190,6 +259,16 @@ var HtmlFactory = function () {
       functionCalls: functionCalls
     };
   }
+  /*
+  makeElementNs: (
+  	namespaceURI: string,
+  	name: string,
+  	attributes: null | object,
+  	children: any,
+  	functionCalls: [typeFunctionCall] = []
+  ) => typeMakeElementResult
+  */
+
 
   function makeElementNs(namespaceURI, name, attributes, children) {
     var functionCalls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
@@ -216,11 +295,26 @@ var HtmlFactory = function () {
       functionCalls: functionCalls
     };
   }
+  /*
+  makeElement: (
+  	name: string,
+  	attributes: null | object,
+  	children: any,
+  	functionCalls: [typeFunctionCall] = []
+  ) => typeMakeElementResult
+  */
+
 
   function makeElement(name, attributes, children) {
     var functionCalls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
     return makeElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, functionCalls);
   }
+  /*
+  makeFunctionCall: (
+  	functionCall: typeFunctionCall
+  ) => any
+  */
+
 
   function makeFunctionCall(functionCall) {
     if (Array.isArray(functionCall)) {
@@ -246,6 +340,7 @@ var HtmlFactory = function () {
   return {
     renderFragment: renderFragment,
     renderElement: renderElement,
+    renderElementNs: renderElementNs,
     renderStyleString: renderStyleString,
     renderFunctionCall: renderFunctionCall,
     makeFragment: makeFragment,

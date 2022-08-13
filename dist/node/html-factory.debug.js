@@ -1,3 +1,29 @@
+/*
+type typeFunctionCall: {
+	name: string,
+	arguments: any
+} | [
+	string,
+	...any
+]
+
+type typeMakeElementResult: {
+	element: any,
+	functionCalls: [typeFunctionCall]
+}
+
+type typeRenderElementResult: {
+	element: string,
+	functionCalls: [typeFunctionCall]
+}
+*/
+
+/*
+renderFragment: (
+	children: any,
+	functionCalls: [typeFunctionCall] = []
+) => null | typeRenderElementResult
+*/
 function renderFragment(children, functionCalls = []) {
 	if (children == null) {
 		return null;
@@ -33,6 +59,14 @@ function renderFragment(children, functionCalls = []) {
 	};
 }
 
+/*
+renderElement: (
+	name: string,
+	attributes: null | object,
+	children: any,
+	functionCalls: [typeFunctionCall] = []
+) => typeRenderElementResult
+*/
 function renderElement(name, attributes, children, functionCalls = []) {
 	const opening = [name];
 	if (attributes) {
@@ -59,6 +93,24 @@ function renderElement(name, attributes, children, functionCalls = []) {
 	};
 }
 
+/*
+renderElementNs: (
+	namespaceURI: string,
+	name: string,
+	attributes: null | object,
+	children: any,
+	functionCalls: [typeFunctionCall] = []
+) => typeRenderElementResult
+*/
+function renderElementNs(namespaceURI, name, attributes, children, functionCalls = []) {
+	return renderElement(name, attributes, children, functionCalls);
+}
+
+/*
+renderStyleString: (
+	styles: object
+) => string
+*/
 function renderStyleString(styles) {
 	const styleStrings = [];
 	for (const key in styles) {
@@ -72,6 +124,11 @@ function renderStyleString(styles) {
 	return styleStrings.join(' ');
 }
 
+/*
+renderFunctionCall: (
+	functionCall: typeFunctionCall
+) => string
+*/
 function renderFunctionCall(functionCall) {
 	if (Array.isArray(functionCall)) {
 		const [name, ...args] = functionCall;
@@ -92,6 +149,7 @@ function renderFunctionCall(functionCall) {
 module.exports = {
 	renderFragment,
 	renderElement,
+	renderElementNs,
 	renderStyleString,
 	renderFunctionCall
 };

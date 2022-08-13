@@ -11,69 +11,107 @@ npm install https://github.com/JamesRobertHugginsNgo/html-factory.git#3.0.0
 ## Types
 
 ### typeFunctionCall
-
 ```
-typeFunctionCall: { name: string, arguments: any } | [string, ...any]
+type typeFunctionCall: {
+  name: string,
+  arguments: any
+} | [
+  string,
+  ...any
+]
 ```
 
 ### typeMakeElementResult
-
 ```
-typeMakeElementResult: { element: any, functionCalls: [typeFunctionCall] }
+type typeMakeElementResult: {
+  element: any,
+  functionCalls: [typeFunctionCall]
+}
 ```
 
 ### typeRenderElementResult
-
 ```
-typeRenderElementResult: { element: string, functionCalls: [typeFunctionCall] }
-```
-
-## Functions
-
-### makeElement
-
-```
-makeElement: (name: string, attributes: null | object, children: any, functionCalls: [typeFunctionCall] = []) => typeMakeElementResult
+type typeRenderElementResult: {
+  element: string,
+  functionCalls: [typeFunctionCall]
+}
 ```
 
-### makeElementNs
-
+## makeElement
 ```
-makeElementNs: (namespaceURI: string, name: string, attributes: null | object, children: any, functionCalls: [typeFunctionCall] = []) => typeMakeElementResult
-```
-
-### makeFragment
-
-```
-makeFragment: (children: any, functionCalls: [typeFunctionCall] = []) => null | typeMakeElementResult
+makeElement: (
+  name: string,
+  attributes: null | object,
+  children: any,
+  functionCalls: [typeFunctionCall] = []
+) => typeMakeElementResult
 ```
 
-### makeFunctionCall
-
+## makeElementNs
 ```
-makeFunctionCall: (functionCall: typeFunctionCall) => any
-```
-
-### renderElement
-
-```
-renderElement: (name: string, attributes: null | object, children: any, functionCalls: [typeFunctionCall] = []) => typeRenderElementResult
-```
-
-### renderFragment
-
-```
-makeFragment: (children: any, functionCalls: [typeFunctionCall] = []) => null | typeRenderElementResult
+makeElementNs: (
+  namespaceURI: string,
+  name: string,
+  attributes: null | object,
+  children: any,
+  functionCalls: [typeFunctionCall] = []
+) => typeMakeElementResult
 ```
 
-### renderFunctionCall
-
+## makeFragment
 ```
-renderFunctionCall: (functionCall: typeFunctionCall) => string
+makeFragment: (
+  children: any,
+  functionCalls: [typeFunctionCall] = []
+) => null | typeMakeElementResult
 ```
 
-### renderStyleString
-
+## makeFunctionCall
 ```
-renderStyleString: (styles: object) => string
+makeFunctionCall: (
+  functionCall: typeFunctionCall
+) => any
+```
+
+## renderElement
+```
+renderElement: (
+  name: string,
+  attributes: null | object,
+  children: any,
+  functionCalls: [typeFunctionCall] = []
+) => typeRenderElementResult
+```
+
+## renderElementNs
+```
+renderElementNs: (
+  namespaceURI: string,
+  name: string,
+  attributes: null | object,
+  children: any,
+  functionCalls: [typeFunctionCall] = []
+) => typeRenderElementResult
+```
+
+## renderFragment
+```
+renderFragment: (
+  children: any,
+  functionCalls: [typeFunctionCall] = []
+) => null | typeRenderElementResult
+```
+
+## renderFunctionCall
+```
+renderFunctionCall: (
+  functionCall: typeFunctionCall
+) => string
+```
+
+## renderStyleString
+```
+renderStyleString: (
+  styles: object
+) => string
 ```
