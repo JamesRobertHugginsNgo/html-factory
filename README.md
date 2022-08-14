@@ -5,7 +5,7 @@ Version 3.1.0
 ## Install
 
 ``` console
-npm install https://github.com/JamesRobertHugginsNgo/html-factory.git#3.0.0
+npm install https://github.com/JamesRobertHugginsNgo/html-factory.git#3.1.0
 ```
 
 ## Types
