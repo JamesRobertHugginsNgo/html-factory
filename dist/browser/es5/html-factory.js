@@ -1,115 +1,96 @@
 "use strict";
 
-function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var HtmlFactory = function () {
   /*
-  type typeFunctionCall: {
-  	name: string,
-  	arguments: any
-  } | [
-  	string,
-  	...any
-  ]
   
-  type typeMakeElementResult: {
-  	element: any,
-  	functionCalls: [typeFunctionCall]
+  define typeFunctionCaller: {
+  	name: string,
+  	args?: [any]
   }
   
-  type typeRenderElementResult: {
+  define typeCreateElementResult: {
+  	element: Node,
+  	functionCallers: [typeFunctionCaller]
+  }
+  
+  define typeRenderElementResult: {
   	element: string,
-  	functionCalls: [typeFunctionCall]
+  	functionCallers: [typeFunctionCaller]
   }
   */
 
   /*
-  renderFragment: (
-  	children: any,
-  	functionCalls: [typeFunctionCall] = []
-  ) => null | typeRenderElementResult
+  renderFragment: ({
+  	children: [any],
+  	functionCallers: [typeFunctionCaller] = []
+  }) => typeRenderElementResult
   */
-  function renderFragment(children) {
-    var functionCalls = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-
-    if (children == null) {
-      return null;
-    }
-
-    if (Array.isArray(children)) {
-      var functionCallSet = [];
-      var element = [];
-
-      var _iterator = _createForOfIteratorHelper(children),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var child = _step.value;
-          var fragment = renderFragment(child, functionCallSet);
-
-          if (fragment) {
-            element.push(fragment.element);
-          }
+  function renderFragment(_ref) {
+    var children = _ref.children,
+        _ref$functionCallers = _ref.functionCallers,
+        functionCallers = _ref$functionCallers === void 0 ? [] : _ref$functionCallers;
+    var functionCallerSet = [];
+    var element = children.filter(function (child) {
+      return child != null;
+    }).map(function (child) {
+      if (child && _typeof(child) === 'object') {
+        if (Array.isArray(child)) {
+          child = renderFragment({
+            children: child
+          });
+        } else if (child.name) {
+          child = renderElement(child);
+        } else if (child.children) {
+          child = renderFragment(child);
         }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
+
+        if (child.element) {
+          var _child = child,
+              childElement = _child.element,
+              childFunctionCallers = _child.functionCallers;
+          functionCallerSet.push.apply(functionCallerSet, _toConsumableArray(childFunctionCallers));
+          return childElement;
+        }
       }
 
-      functionCalls.splice.apply(functionCalls, [0, 0].concat(functionCallSet));
-      return {
-        element: element.join(''),
-        functionCalls: functionCalls
-      };
-    }
-
-    if (_typeof(children) === 'object' && children.element) {
-      functionCalls.push.apply(functionCalls, _toConsumableArray(children.functionCalls));
-      return {
-        element: children.element,
-        functionCalls: functionCalls
-      };
-    }
-
+      return child;
+    });
+    functionCallers.splice.apply(functionCallers, [0, 0].concat(functionCallerSet));
     return {
-      element: children,
-      functionCalls: functionCalls
+      element: element.join(''),
+      functionCallers: functionCallers
     };
   }
   /*
-  renderElement: (
+  renderElement: ({
   	name: string,
-  	attributes: null | object,
-  	children: any,
-  	functionCalls: [typeFunctionCall] = []
-  ) => typeRenderElementResult
+  	attributes?: object,
+  	children?: [any],
+  	functionCallers: [typeFunctionCaller] = []
+  }) => typeRenderElementResult
   */
 
 
-  function renderElement(name, attributes, children) {
-    var functionCalls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+  function renderElement(_ref2) {
+    var name = _ref2.name,
+        attributes = _ref2.attributes,
+        children = _ref2.children,
+        _ref2$functionCallers = _ref2.functionCallers,
+        functionCallers = _ref2$functionCallers === void 0 ? [] : _ref2$functionCallers;
     var opening = [name];
 
     if (attributes) {
@@ -124,35 +105,18 @@ var HtmlFactory = function () {
 
     var element = ["<".concat(opening.join(' '), ">")];
 
-    if (children != null) {
-      var fragment = renderFragment(children, functionCalls);
-
-      if (fragment) {
-        element.push(fragment.element);
-      }
-
+    if (children) {
+      element.push(renderFragment({
+        children: children,
+        functionCallers: functionCallers
+      }).element);
       element.push("</".concat(name, ">"));
     }
 
     return {
       element: element.join(''),
-      functionCalls: functionCalls
+      functionCallers: functionCallers
     };
-  }
-  /*
-  renderElementNs: (
-  	namespaceURI: string,
-  	name: string,
-  	attributes: null | object,
-  	children: any,
-  	functionCalls: [typeFunctionCall] = []
-  ) => typeRenderElementResult
-  */
-
-
-  function renderElementNs(namespaceURI, name, attributes, children) {
-    var functionCalls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
-    return renderElement(name, attributes, children, functionCalls);
   }
   /*
   renderStyleString: (
@@ -169,109 +133,91 @@ var HtmlFactory = function () {
 
       if (_typeof(value) === 'object') {
         styleStrings.push("".concat(key, " { ").concat(renderStyleString(value), " }"));
-      } else {
-        styleStrings.push("".concat(key, ": ").concat(value, ";"));
+        continue;
       }
+
+      styleStrings.push("".concat(key, ": ").concat(value, ";"));
     }
 
     return styleStrings.join(' ');
   }
   /*
-  renderFunctionCall: (
-  	functionCall: typeFunctionCall
+  renderFunctionCaller: (
+  	functionCaller: typeFunctionCaller
   ) => string
   */
 
 
-  function renderFunctionCall(functionCall) {
-    if (Array.isArray(functionCall)) {
-      var _functionCall = _toArray(functionCall),
-          _name = _functionCall[0],
-          _args = _functionCall.slice(1);
-
-      return renderFunctionCall({
-        name: _name,
-        arguments: _args
-      });
-    }
-
-    var name = functionCall.name,
-        args = functionCall.arguments;
-    var finalArgs = (Array.isArray(args) ? args : [args]).map(function (arg) {
+  function renderFunctionCaller(_ref3) {
+    var name = _ref3.name,
+        _ref3$args = _ref3.args,
+        args = _ref3$args === void 0 ? [] : _ref3$args;
+    return "".concat(name, "(").concat(args.map(function (arg) {
       return JSON.stringify(arg);
-    });
-    return "".concat(name, "(").concat(finalArgs.join(', '), ");");
+    }).join(', '), ");");
   }
   /*
-  makeFragment: (
-  	children: any,
-  	functionCalls: [typeFunctionCall] = []
-  ) => null | typeMakeElementResult
+  createFragment: ({
+  	children: [any],
+  	functionCallers: [typeFunctionCaller] = []
+  }) => typeCreateElementResult
   */
 
 
-  function makeFragment(children) {
-    var functionCalls = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-
-    if (children == null) {
-      return null;
-    }
-
-    if (Array.isArray(children)) {
-      var functionCallSet = [];
-      var element = document.createDocumentFragment();
-
-      var _iterator2 = _createForOfIteratorHelper(children),
-          _step2;
-
-      try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var child = _step2.value;
-          var fragment = makeFragment(child, functionCallSet);
-
-          if (fragment) {
-            element.append(fragment.element);
-          }
+  function createFragment(children) {
+    var functionCallers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var functionCallerSet = [];
+    var element = new DocumentFragment();
+    element.append.apply(element, _toConsumableArray(children.filter(function (child) {
+      return child != null;
+    }).map(function (child) {
+      if (child && _typeof(child) === 'object') {
+        if (Array.isArray(child)) {
+          child = createFragment({
+            children: child
+          });
+        } else if (child.name) {
+          child = createElement(child);
+        } else if (child.children) {
+          child = createFragment(child);
         }
-      } catch (err) {
-        _iterator2.e(err);
-      } finally {
-        _iterator2.f();
+
+        if (child.element) {
+          var _child2 = child,
+              childElement = _child2.element,
+              childFunctionCallers = _child2.functionCallers;
+          functionCallerSet.push.apply(functionCallerSet, _toConsumableArray(childFunctionCallers));
+          return childElement;
+        }
       }
 
-      functionCalls.splice.apply(functionCalls, [0, 0].concat(functionCallSet));
-      return {
-        element: element,
-        functionCalls: functionCalls
-      };
-    }
-
-    if (_typeof(children) === 'object' && children.element) {
-      functionCalls.push.apply(functionCalls, _toConsumableArray(children.functionCalls));
-      return {
-        element: children.element,
-        functionCalls: functionCalls
-      };
-    }
-
+      return child;
+    })));
+    functionCallers.splice.apply(functionCallers, [0, 0].concat(functionCallerSet));
     return {
-      element: children,
-      functionCalls: functionCalls
+      element: element,
+      functionCallers: functionCallers
     };
   }
   /*
-  makeElementNs: (
-  	namespaceURI: string,
+  createElement: ({
+  	namespaceURI: string = 'http://www.w3.org/1999/xhtml',
   	name: string,
-  	attributes: null | object,
-  	children: any,
-  	functionCalls: [typeFunctionCall] = []
-  ) => typeMakeElementResult
+  	attributes?: object,
+  	children?: [any],
+  	functionCallers: [typeFunctionCaller] = []
+  }) => typeCreateElementResult
   */
 
 
-  function makeElementNs(namespaceURI, name, attributes, children) {
-    var functionCalls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [];
+  function createElement(_ref4) {
+    var _ref4$namespaceURI = _ref4.namespaceURI,
+        namespaceURI = _ref4$namespaceURI === void 0 ? 'http://www.w3.org/1999/xhtml' : _ref4$namespaceURI,
+        name = _ref4.name,
+        attributes = _ref4.attributes,
+        children = _ref4.children,
+        _ref4$functionCallers = _ref4.functionCallers,
+        functionCallers = _ref4$functionCallers === void 0 ? [] : _ref4$functionCallers;
     var element = document.createElementNS(namespaceURI, name);
 
     if (attributes) {
@@ -284,69 +230,40 @@ var HtmlFactory = function () {
       }
     }
 
-    var fragment = makeFragment(children, functionCalls);
-
-    if (fragment) {
+    if (children) {
+      var fragment = createFragment(children, functionCallers);
       element.append(fragment.element);
     }
 
     return {
       element: element,
-      functionCalls: functionCalls
+      functionCallers: functionCallers
     };
   }
   /*
-  makeElement: (
-  	name: string,
-  	attributes: null | object,
-  	children: any,
-  	functionCalls: [typeFunctionCall] = []
-  ) => typeMakeElementResult
-  */
-
-
-  function makeElement(name, attributes, children) {
-    var functionCalls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-    return makeElementNs('http://www.w3.org/1999/xhtml', name, attributes, children, functionCalls);
-  }
-  /*
-  makeFunctionCall: (
-  	functionCall: typeFunctionCall
+  callFunctionCaller: (
+  	functionCaller: typeFunctionCaller
   ) => any
   */
 
 
-  function makeFunctionCall(functionCall) {
-    if (Array.isArray(functionCall)) {
-      var _functionCall2 = _toArray(functionCall),
-          _name2 = _functionCall2[0],
-          _args2 = _functionCall2.slice(1);
-
-      return makeFunctionCall({
-        name: _name2,
-        arguments: _args2
-      });
-    }
-
-    var name = functionCall.name,
-        args = functionCall.arguments;
-    var func = name.split('.').reduce(function (acc, cur) {
+  function callFunctionCaller(_ref5) {
+    var name = _ref5.name,
+        _ref5$args = _ref5.args,
+        args = _ref5$args === void 0 ? [] : _ref5$args;
+    return name.split('.').reduce(function (acc, cur) {
       return acc[cur];
-    }, window);
-    var finalArgs = Array.isArray(args) ? args : [args];
-    return func.apply(void 0, _toConsumableArray(finalArgs));
+    }, window).apply(void 0, _toConsumableArray(args));
   }
 
   return {
     renderFragment: renderFragment,
     renderElement: renderElement,
-    renderElementNs: renderElementNs,
     renderStyleString: renderStyleString,
-    renderFunctionCall: renderFunctionCall,
-    makeFragment: makeFragment,
-    makeElementNs: makeElementNs,
-    makeElement: makeElement,
-    makeFunctionCall: makeFunctionCall
+    renderFunctionCaller: renderFunctionCaller,
+    createFragment: createFragment,
+    createElement: createElement,
+    callFunctionCaller: callFunctionCaller
   };
 }();
 /* exported HtmlFactory */
