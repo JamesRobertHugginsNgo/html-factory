@@ -98,7 +98,11 @@ var HtmlFactory = function () {
         var value = attributes[key];
 
         if (value != null) {
-          opening.push("".concat(key, "=\"").concat(value, "\""));
+          if (value === '') {
+            opening.push(key);
+          } else {
+            opening.push("".concat(key, "=\"").concat(value, "\""));
+          }
         }
       }
     }

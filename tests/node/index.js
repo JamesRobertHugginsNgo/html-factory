@@ -38,7 +38,7 @@ const config = {
 				' Hello ',
 				{
 					name: 'span',
-					attributes: { style: renderStyleString({ color: 'green' }) },
+					attributes: { style: renderStyleString({ color: 'green' }), test: '' },
 					children: ['World'],
 					functionCallers: [{ name: 'console.log', args: ['WORLD', 123] }]
 				}

@@ -70,7 +70,11 @@ function renderElement({ name, attributes, children, functionCallers = [] }) {
 		for (const key in attributes) {
 			const value = attributes[key];
 			if (value != null) {
-				opening.push(`${key}="${value}"`);
+				if (value === '') {
+					opening.push(key);
+				} else {
+					opening.push(`${key}="${value}"`);
+				}
 			}
 		}
 	}
