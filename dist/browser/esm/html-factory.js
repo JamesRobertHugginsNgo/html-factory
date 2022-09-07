@@ -121,7 +121,7 @@ createFragment: ({
 	functionCallers: [typeFunctionCaller] = []
 }) => typeCreateElementResult
 */
-function createFragment(children, functionCallers = []) {
+function createFragment({ children, functionCallers = [] }) {
 	const functionCallerSet = [];
 	const element = new DocumentFragment();
 	element.append(...children.filter((child) => {
@@ -180,7 +180,7 @@ function createElement({
 	}
 
 	if (children) {
-		const fragment = createFragment(children, functionCallers);
+		const fragment = createFragment({ children, functionCallers });
 		element.append(fragment.element);
 	}
 

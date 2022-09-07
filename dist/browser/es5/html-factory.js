@@ -168,8 +168,10 @@ var HtmlFactory = function () {
   */
 
 
-  function createFragment(children) {
-    var functionCallers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  function createFragment(_ref4) {
+    var children = _ref4.children,
+        _ref4$functionCallers = _ref4.functionCallers,
+        functionCallers = _ref4$functionCallers === void 0 ? [] : _ref4$functionCallers;
     var functionCallerSet = [];
     var element = new DocumentFragment();
     element.append.apply(element, _toConsumableArray(children.filter(function (child) {
@@ -214,14 +216,14 @@ var HtmlFactory = function () {
   */
 
 
-  function createElement(_ref4) {
-    var _ref4$namespaceURI = _ref4.namespaceURI,
-        namespaceURI = _ref4$namespaceURI === void 0 ? 'http://www.w3.org/1999/xhtml' : _ref4$namespaceURI,
-        name = _ref4.name,
-        attributes = _ref4.attributes,
-        children = _ref4.children,
-        _ref4$functionCallers = _ref4.functionCallers,
-        functionCallers = _ref4$functionCallers === void 0 ? [] : _ref4$functionCallers;
+  function createElement(_ref5) {
+    var _ref5$namespaceURI = _ref5.namespaceURI,
+        namespaceURI = _ref5$namespaceURI === void 0 ? 'http://www.w3.org/1999/xhtml' : _ref5$namespaceURI,
+        name = _ref5.name,
+        attributes = _ref5.attributes,
+        children = _ref5.children,
+        _ref5$functionCallers = _ref5.functionCallers,
+        functionCallers = _ref5$functionCallers === void 0 ? [] : _ref5$functionCallers;
     var element = document.createElementNS(namespaceURI, name);
 
     if (attributes) {
@@ -235,7 +237,10 @@ var HtmlFactory = function () {
     }
 
     if (children) {
-      var fragment = createFragment(children, functionCallers);
+      var fragment = createFragment({
+        children: children,
+        functionCallers: functionCallers
+      });
       element.append(fragment.element);
     }
 
@@ -251,10 +256,10 @@ var HtmlFactory = function () {
   */
 
 
-  function callFunctionCaller(_ref5) {
-    var name = _ref5.name,
-        _ref5$args = _ref5.args,
-        args = _ref5$args === void 0 ? [] : _ref5$args;
+  function callFunctionCaller(_ref6) {
+    var name = _ref6.name,
+        _ref6$args = _ref6.args,
+        args = _ref6$args === void 0 ? [] : _ref6$args;
     return name.split('.').reduce(function (acc, cur) {
       return acc[cur];
     }, window).apply(void 0, _toConsumableArray(args));
