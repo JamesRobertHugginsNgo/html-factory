@@ -1,32 +1,139 @@
 /* @if TARGET="BROWSER_ES6" || TARGET="BROWSER_ES5" **
 const HtmlFactory = (() => {
 /* @endif */
+
+/* @if TARGET!="NODE" */
 /*
-
-define typeFunctionCaller: {
-	name: string,
-	args?: [any]
-}
-
-define typeCreateElementResult: {
-	element: Node,
-	functionCallers: [typeFunctionCaller]
-}
-
-define typeRenderElementResult: {
-	element: string,
-	functionCallers: [typeFunctionCaller]
+createFragment: (arg0: {
+	children: [any],
+	functionCallers?: [{
+		name: string,
+		args?: [any]
+	}] = []
+}) => {
+	element: Node
+	functionCallers: [{
+		name: string,
+		args?: [any]
+	}]
 }
 */
+function createFragment({ children, functionCallers = [] }) {
+	const functionCallerSet = [];
+
+	const element = new DocumentFragment();
+	element.append(...children.filter((child) => {
+		return child != null;
+	}).map((child) => {
+		if (child && typeof child === 'object') {
+			if (Array.isArray(child)) {
+				child = createFragment({ children: child });
+			} else if (child.name) {
+				child = createElement(child);
+			} else if (child.children) {
+				child = createFragment(child);
+			}
+
+			if (child.element) {
+				const {
+					element: childElement,
+					functionCallers: childFunctionCallers
+				} = child;
+
+				functionCallerSet.push(...childFunctionCallers);
+
+				return childElement;
+			}
+		}
+
+		return child;
+	}));
+
+	functionCallers.splice(0, 0, ...functionCallerSet);
+
+	return {
+		element,
+		functionCallers
+	};
+}
 
 /*
-renderFragment: ({
+createElement: (arg0: {
+	namespaceURI?: string = 'http://www.w3.org/1999/xhtml',
+	name: string,
+	attributes?: object,
+	children?: [any],
+	functionCallers?: [{
+		name: string,
+		args?: [any]
+	}] = []
+}) => {
+	element: Node
+	functionCallers: [{
+		name: string,
+		args?: [any]
+	}]
+}
+*/
+function createElement({
+	namespaceURI = 'http://www.w3.org/1999/xhtml',
+	name,
+	attributes,
+	children,
+	functionCallers = []
+}) {
+	const element = document.createElementNS(namespaceURI, name);
+	if (attributes) {
+		for (const key in attributes) {
+			const value = attributes[key];
+			if (value != null) {
+				element.setAttribute(key, value);
+			}
+		}
+	}
+
+	if (children) {
+		const fragment = createFragment({ children, functionCallers });
+		element.append(fragment.element);
+	}
+
+	return {
+		element,
+		functionCallers
+	};
+}
+
+/*
+callFunctionCaller: (arg0: {
+	name: string,
+	args?: [any] = []
+}) => any
+*/
+function callFunctionCaller({ name, args = [] }) {
+	return name.split('.').reduce((acc, cur) => {
+		return acc[cur];
+	}, window)(...args);
+}
+
+/* @endif */
+/*
+renderFragment: (arg0: {
 	children: [any],
-	functionCallers: [typeFunctionCaller] = []
-}) => typeRenderElementResult
+	functionCallers?: [{
+		name: string,
+		args?: [any]
+	}] = []
+}) => {
+	element: string
+	functionCallers: [{
+		name: string,
+		args?: [any]
+	}]
+}
 */
 function renderFragment({ children, functionCallers = [] }) {
 	const functionCallerSet = [];
+
 	const element = children.filter((child) => {
 		return child != null;
 	}).map((child) => {
@@ -40,29 +147,44 @@ function renderFragment({ children, functionCallers = [] }) {
 			}
 
 			if (child.element) {
-				const { element: childElement, functionCallers: childFunctionCallers } = child;
+				const {
+					element: childElement,
+					functionCallers: childFunctionCallers
+				} = child;
+
 				functionCallerSet.push(...childFunctionCallers);
+
 				return childElement;
 			}
 		}
+
 		return child;
-	});
+	}).join('');
 
 	functionCallers.splice(0, 0, ...functionCallerSet);
 
 	return {
-		element: element.join(''),
+		element,
 		functionCallers
 	};
 }
 
 /*
-renderElement: ({
+renderElement: (arg0: {
 	name: string,
 	attributes?: object,
 	children?: [any],
-	functionCallers: [typeFunctionCaller] = []
-}) => typeRenderElementResult
+	functionCallers?: [{
+		name: string,
+		args?: [any]
+	}] = []
+}) => {
+	element: Node
+	functionCallers: [{
+		name: string,
+		args?: [any]
+	}]
+}
 */
 function renderElement({ name, attributes, children, functionCallers = [] }) {
 	const opening = [name];
@@ -106,104 +228,22 @@ function renderStyleString(styles) {
 		}
 		styleStrings.push(`${key}: ${value};`);
 	}
+
 	return styleStrings.join(' ');
 }
 
 /*
-renderFunctionCaller: (
-	functionCaller: typeFunctionCaller
-) => string
+renderFunctionCaller: ({
+	name: string,
+	args?: [any] = []
+}) => string
 */
 function renderFunctionCaller({ name, args = [] }) {
-	return `${name}(${args.map((arg) => JSON.stringify(arg)).join(', ')});`;
+	return `${name}(${args.map((arg) => {
+		return JSON.stringify(arg);
+	}).join(', ')});`;
 }
 
-/* @if TARGET!="NODE" */
-/*
-createFragment: ({
-	children: [any],
-	functionCallers: [typeFunctionCaller] = []
-}) => typeCreateElementResult
-*/
-function createFragment({ children, functionCallers = [] }) {
-	const functionCallerSet = [];
-	const element = new DocumentFragment();
-	element.append(...children.filter((child) => {
-		return child != null;
-	}).map((child) => {
-		if (child && typeof child === 'object') {
-			if (Array.isArray(child)) {
-				child = createFragment({ children: child });
-			} else if (child.name) {
-				child = createElement(child);
-			} else if (child.children) {
-				child = createFragment(child);
-			}
-
-			if (child.element) {
-				const { element: childElement, functionCallers: childFunctionCallers } = child;
-				functionCallerSet.push(...childFunctionCallers);
-				return childElement;
-			}
-		}
-		return child;
-	}));
-
-	functionCallers.splice(0, 0, ...functionCallerSet);
-
-	return {
-		element,
-		functionCallers
-	};
-}
-
-/*
-createElement: ({
-	namespaceURI: string = 'http://www.w3.org/1999/xhtml',
-	name: string,
-	attributes?: object,
-	children?: [any],
-	functionCallers: [typeFunctionCaller] = []
-}) => typeCreateElementResult
-*/
-function createElement({
-	namespaceURI = 'http://www.w3.org/1999/xhtml',
-	name,
-	attributes,
-	children,
-	functionCallers = []
-}) {
-	const element = document.createElementNS(namespaceURI, name);
-	if (attributes) {
-		for (const key in attributes) {
-			const value = attributes[key];
-			if (value != null) {
-				element.setAttribute(key, value);
-			}
-		}
-	}
-
-	if (children) {
-		const fragment = createFragment({ children, functionCallers });
-		element.append(fragment.element);
-	}
-
-	return {
-		element,
-		functionCallers
-	};
-}
-
-/*
-callFunctionCaller: (
-	functionCaller: typeFunctionCaller
-) => any
-*/
-function callFunctionCaller({ name, args = [] }) {
-	return name.split('.').reduce((acc, cur) => acc[cur], window)(...args);
-}
-
-/* @endif */
 /* @if TARGET="NODE" **
 module.exports = {
 	renderFragment,
@@ -214,24 +254,24 @@ module.exports = {
 /* @endif */
 /* @if TARGET="BROWSER_ESM" */
 export {
+	createFragment,
+	createElement,
+	callFunctionCaller,
 	renderFragment,
 	renderElement,
 	renderStyleString,
-	renderFunctionCaller,
-	createFragment,
-	createElement,
-	callFunctionCaller
+	renderFunctionCaller
 };
 /* @endif */
 /* @if TARGET="BROWSER_ES6" || TARGET="BROWSER_ES5" **
 return {
+	createFragment,
+	createElement,
+	callFunctionCaller,
 	renderFragment,
 	renderElement,
 	renderStyleString,
-	renderFunctionCaller,
-	createFragment,
-	createElement,
-	callFunctionCaller
+	renderFunctionCaller
 };
 })();
 
